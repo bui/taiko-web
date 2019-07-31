@@ -10,13 +10,6 @@ from flask import Flask, g, jsonify, render_template, request, abort, redirect
 from flask_caching import Cache
 from ffmpy import FFmpeg
 
-app = Flask(__name__)
-try:
-    app.cache = Cache(app, config={'CACHE_TYPE': 'redis'})
-except RuntimeError:
-    import tempfile
-    app.cache = Cache(app, config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': tempfile.gettempdir()})
-
 DATABASE = 'taiko.db'
 DEFAULT_URL = 'https://github.com/bui/taiko-web/'
 
@@ -70,6 +63,21 @@ def get_version():
 
     return version
 
+app = Flask(__name__)
+try:
+    config = get_config()
+    app.cache = Cache(app, config={
+        'CACHE_TYPE': 'redis',
+        'CACHE_REDIS_HOST': config['redis_host'],
+        'CACHE_REDIS_PORT': config['redis_port'],
+        'CACHE_REDIS_PASSWORD': config['redis_password'],
+        'CACHE_REDIS_DB': config['redis_db']
+    })
+    print("redis enabled")
+except RuntimeError:
+    print("redis disabled")
+    import tempfile
+    app.cache = Cache(app, config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': tempfile.gettempdir()})
 
 @app.teardown_appcontext
 def close_connection(exception):
