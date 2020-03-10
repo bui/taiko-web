@@ -869,7 +869,7 @@
 		var scoreMS = ms - this.currentScore.ms
 		
 		var comboCount = this.controller.getCombo()
-		if(comboCount >= 10){
+		if(comboCount >= 3){
 			var comboText = comboCount.toString().split("")
 			var mul = this.portrait ? 0.8 : 1
 			var comboX = taikoPos.x + taikoPos.w / 2
