@@ -565,7 +565,7 @@
 		}
 		this.scoreinit = meta.scoreinit;
 		this.scorediff = meta.scorediff;
-		if (this.scoreinit && this.scorediff) {
+		if (this.scoreinit) {
 			this.scoremode = meta.scoremode || 1;
 		} else { 
 			this.scoremode = meta.scoremode || 2;
