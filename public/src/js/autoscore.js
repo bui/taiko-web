@@ -70,6 +70,11 @@ class AutoScore {
 		this.ScoreInit = 0;
 		var max_init = this.GetMaxPossibleInit(target);
 		var min_init = 0;
+		if (this.scoremode === 3) { 
+			this.ScoreDiff = 0;
+			this.ScoreInit = max_init;
+			return;
+		}
 		while (true) { 
 			this.ScoreInit = (max_init + min_init) / 2;
 			this.ScoreDiff = Math.round(this.ScoreInit / 4);
@@ -113,15 +118,15 @@ class AutoScore {
 			}
 			if (this.IsCommonCircle(circle)) { 
 				combo++;
-				if (combo % 100 === 0 && this.scoremode !== 1) { 
+				if (combo % 100 === 0 && this.scoremode === 2) { 
 					score += 10000;
 				}
 			}
 			var diff_mul = 0;
-			var multiplier = circle.gogoTime ? 1.2 : 1;
+			var multiplier = (this.scoremode !== 3 && circle.gogoTime) ? 1.2 : 1;
 			if (this.scoremode === 1) {
 				diff_mul = Math.max(0, Math.floor((Math.min(combo, 100) - 1) / 10));
-			} else { 
+			} else if (this.scoremode === 2) { 
 				if (combo >= 100) {
 					diff_mul = 8;
 				} else if (combo >= 50) {
@@ -132,23 +137,42 @@ class AutoScore {
 					diff_mul = 1;
 				}
 			}
-			switch (circle.type) { 
-				case "don":
-				case "ka": { 
-					score += Math.floor((init + diff * diff_mul) * multiplier / 10) * 10;
-					break;
+			if (this.scoremode === 3) {
+				switch (circle.type) { 
+					case "don":
+					case "ka":
+					case "daiDon":
+					case "daiKa": { 
+						score += Math.floor(init / 10) * 10;
+						break;
+					}
+					case "balloon": { 
+						score +=  100 * circle.requiredHits;
+						break;
+					}
+					default: { 
+						break;
+					}
 				}
-				case "daiDon":
-				case "daiKa": { 
-					score += Math.floor((init + diff * diff_mul) * multiplier / 5) * 10;
-					break;
-				}
-				case "balloon": { 
-					score += (5000 + 300 * circle.requiredHits) * multiplier;
-					break;
-				}
-				default: { 
-					break;
+			} else { 
+				switch (circle.type) { 
+					case "don":
+					case "ka": { 
+						score += Math.floor((init + diff * diff_mul) * multiplier / 10) * 10;
+						break;
+					}
+					case "daiDon":
+					case "daiKa": { 
+						score += Math.floor((init + diff * diff_mul) * multiplier / 5) * 10;
+						break;
+					}
+					case "balloon": { 
+						score += (5000 + 300 * (circle.requiredHits - 1)) * multiplier;
+						break;
+					}
+					default: { 
+						break;
+					}
 				}
 			}
 		}
@@ -156,6 +180,9 @@ class AutoScore {
 	}
 	GetTargetScore(difficulty, level) { 
 		//console.log(difficulty, level)
+		if (this.scoremode === 3) {
+			return 1000000;
+		}
 		var ret = this.basic_max_score_list[difficulty][level];
 		if (!ret) { 
 			ret = this.basic_max_score_list[difficulty][0];
@@ -167,40 +194,59 @@ class AutoScore {
 		for (var circle of this.circles) { 
 			//alert(this.IsCommonCircle(circle));
 			if (this.IsCommonCircle(circle) && (!circle.branch || circle.branch.name === "master")) { 
-				combo++;
+				++combo;
 			}
 		}
 		return combo;
 	}
 	GetMaxPossibleInit(target) { 
 		var basic_score = 0;
-		if (this.scoremode !== 1) { 
+		if (this.scoremode === 2) { 
 			const max_combo = this.GetMaxCombo();
-			basic_score += Math.floor(max_combo / 100);
+			basic_score += Math.floor(max_combo / 100) * 10000;
 		}
 		var combo = 0;
 		for (var circle of this.circles) { 
 			if (circle.branch && circle.branch.name !== "master") { 
 				continue;
 			}
-			var multiplier = circle.gogoTime ? 1.2 : 1;
-			switch (circle.type) { 
-				case "don":
-				case "ka": { 
-					combo += (1 * multiplier);
-					break;
+			var multiplier = (circle.gogoTime && this.scoremode !== 3) ? 1.2 : 1;
+			if (this.scoremode === 3) {
+				switch (circle.type) { 
+					case "don":
+					case "ka": 
+					case "daiDon":
+					case "daiKa": { 
+						++combo;
+						break;
+					}
+					case "balloon": { 
+						basic_score += 100 * this.requiredHits;
+						break;
+					}
+					default: { 
+						break;
+					}
 				}
-				case "daiDon":
-				case "daiKa": { 
-					combo += (2 * multiplier);
-					break;
-				}
-				case "balloon": { 
-					basic_score += (5000 + 300 * circle.requiredHits) * multiplier;
-					break;
-				}
-				default: { 
-					break;
+			} else { 
+				switch (circle.type) { 
+					case "don":
+					case "ka": { 
+						combo += (1 * multiplier);
+						break;
+					}
+					case "daiDon":
+					case "daiKa": { 
+						combo += (2 * multiplier);
+						break;
+					}
+					case "balloon": { 
+						basic_score += (5000 + 300 * (circle.requiredHits - 1)) * multiplier;
+						break;
+					}
+					default: { 
+						break;
+					}
 				}
 			}
 		}
