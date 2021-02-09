@@ -36,7 +36,6 @@ $RECYCLE.BIN/
 .Trashes
 
 .vscode
-*.pyc
 
 # Directories potentially created on remote AFP share
 .AppleDB
@@ -51,4 +50,10 @@ version.json
 public/index.html
 config.py
 public/assets/song_skins
+
+# Python-related
+*.pyc
 .venv
+__pycache__
+config.py
+venv
