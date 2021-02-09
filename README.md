@@ -11,48 +11,36 @@ Still in development. Works best with Chrome.
 You can run the project in Docker with the following steps:
 
 - Create the `config.py` file. You can use the default configuration:
-
     ```bash
     cp config.example.py config.py
     ```
-
 - Build the Docker image:
-
     ```bash
     docker build -t taiko-web .
     ```
-
 - Run a Docker container:
-
     ```bash
     docker run --name taiko-web --rm -p 34801:34801 -p 34802:34802 -d taiko-web
     ```
-
 - Visit [localhost:34801](localhost:34801).
 
 ## Requirements
 
 - A Linux environment with the following software installed:
-
     - Git
-
-    - Python3-dev
-
+    - Python3-dev (3.5 or later)
     - Python3-venv
-
     - Redis
-
     - MongoDB
-
     - FFmpeg
-
+        - Must be compiled with `libmp3lame` codec
 - Songs. taiko-web supports TJA and OSU charts.
 
 While it may be possible to set up taiko-web under different environments (e.g. Windows Server), they are untested and not officially supported.
 
 ## Setup
 
-The codes below are for ubuntu systems. You may need to change some parts for other systems.
+The instructions below are for ubuntu systems. You may need to change some parts for other systems.
 
 ### Install the required software (except MongoDB)
 
@@ -69,13 +57,15 @@ Visit [https://docs.mongodb.com/manual/installation/](https://docs.mongodb.com/m
 ### Clone taiko-web
 
 ```bash
-git clone https://github.com/bui/taiko-web.git
+#git clone https://github.com/bui/taiko-web.git
+git clone https://github.com/WHMHammer/taiko-web.git
 cd taiko-web
 ```
 
 ### Set up database
 
 ```bash
+sudo service redis-server start
 sudo service mongod start
 mongo taiko --eval 'db.users.findOneAndUpdate({username:"admin"},{$set:{user_level:100}})'
 mongoimport --db taiko --collection categories --file /taiko-web/tools/categories.json --jsonArray
@@ -99,7 +89,7 @@ At present, songs must be added to taiko-web manually via the database. A song m
 
 Check the `Add songs (continued)` section for more details.
 
-### Set up Python virtual environment and run
+### Set up Python virtual environment and run the servers
 
 ```bash
 python3 -m venv venv
@@ -123,11 +113,8 @@ python3 server.py &
 The servers will run in the background. If you wish to stop them:
 
 - Run `fg`
-
 - Hit `Ctrl + C`
-
 - Run `fg`
-
 - Hit `Ctrl + C`
 
 ## Add songs (continued)
