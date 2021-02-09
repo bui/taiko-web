@@ -376,7 +376,7 @@ port = int(sys.argv[1]) if len(sys.argv) > 1 else 34802
 print('Starting server on port %d' % port)
 loop = asyncio.get_event_loop()
 tasks = asyncio.gather(
-	websockets.serve(connection, "localhost", port)
+	websockets.serve(connection, "127.0.0.1", port)
 )
 try:
 	loop.run_until_complete(tasks)

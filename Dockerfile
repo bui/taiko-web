@@ -16,4 +16,5 @@ ENTRYPOINT \
     mongod --fork --syslog && \
     mongo taiko --eval 'db.users.findOneAndUpdate({username:"admin"},{$set:{user_level:100}})' && \
     mongoimport --db taiko --collection categories --file /taiko-web/tools/categories.json --jsonArray && \
-    uwsgi --http :34801 --master --wsgi-file /taiko-web/app.py --callable app
+    uwsgi --http :34801 --master --wsgi-file /taiko-web/app.py --callable app &; \
+    python3 /taiko-web/server.py
