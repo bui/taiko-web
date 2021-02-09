@@ -106,7 +106,7 @@ cp config.example.py config.py
 The run the following:
 
 ```{bash}
-uwsgi --http :34801 --master --wsgi-file /taiko-web/app.py --callable app &
+uwsgi --http :34801 --master --wsgi-file app.py --callable app &
 python3 server.py &
 ```
 
