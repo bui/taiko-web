@@ -8,194 +8,80 @@ Still in development. Works best with Chrome.
 
 ## Docker
 
-First create the `config.py` file. You can use the default configuration:
+You can run the project in Docker with the following steps:
 
-```bash
-cp config.example.py config.py
-```
+- Create the `config.py` file. You can use the default configuration:
 
-Then build the docker image:
+    ```bash
+    cp config.example.py config.py
+    ```
 
-```bash
-docker build -t taiko-web .
-```
+- Build the Docker image:
 
-And start a docker container:
+    ```bash
+    docker build -t taiko-web .
+    ```
 
-```bash
-docker run --name taiko-web -p 34801:34801 -p 34802:34802 -d --rm taiko-web
-```
+- Run a Docker container:
 
-You can then access taiko-web by visiting `localhost:34801`.
+    ```bash
+    docker run --name taiko-web --rm -p 34801:34801 -p 34802:34802 -d taiko-web
+    ```
+
+- Visit [localhost:34801](localhost:34801).
 
 ## Requirements
 
-To set up and configure taiko-web, you'll need a few things:
+- A Linux environment with the following software installed:
 
-* A Linux server with the following software installed:
-    * Git
-    * Python 3.5 (or later)
-    * nginx
-    * MongoDB
-    * **Optional**: FFmpeg
-        * Must be compiled with libmp3lame codec
-    * **Optional**: Redis
-    * **Optional**: Supervisor
-    * **Optional**: python3-virtualenv
-* Songs. taiko-web supports TJA and OSU charts.
+    - Git
 
-While it may be possible to set up taiko-web under different environments (eg. using Windows Server, or a web server other than nginx), they are untested and unsupported.
+    - Python3-dev
+
+    - Python3-venv
+
+    - Redis
+
+    - MongoDB
+
+    - FFmpeg
+
+- Songs. taiko-web supports TJA and OSU charts.
+
+While it may be possible to set up taiko-web under different environments (e.g. Windows Server), they are untested and not officially supported.
 
 ## Setup
 
-### Installing the requirements
+The codes below are for ubuntu systems. You may need to change some parts for other systems.
 
-If you have not already done so, install the above-listed software on your server. The following commands were ran on a Debian 10 system, you may need to alter them depending on your OS.
-
-```bash
-su
-apt update
-apt install git python3-pip nginx
-```
-
-It is recommended to install these optional packages as well.
+### Install the required software (except MongoDB)
 
 ```bash
-apt install ffmpeg redis supervisor python3-virtualenv
+sudo add-apt-repository ppa:redislabs/redis
+sudo apt-get update
+sudo apt-get install git python3-dev python3-venv redis ffmpeg
 ```
 
-### Installing MongoDB
+### Install MongoDB
 
-Consult the [MongoDB installation tutorial](https://docs.mongodb.com/manual/installation/) for your operating system to install MongoDB Community Edition on your system.
+Visit [https://docs.mongodb.com/manual/installation/](https://docs.mongodb.com/manual/installation/) for instructions.
 
-### Obtaining taiko-web
-
-Next, clone the taiko-web repository into a directory of your choosing.
+### Clone taiko-web
 
 ```bash
-su -c 'mkdir -p /srv/taiko-web'
-su -c 'chown $USER /srv/taiko-web'
-git clone https://github.com/bui/taiko-web.git /srv/taiko-web
+git clone https://github.com/bui/taiko-web.git
+cd taiko-web
 ```
 
-All the commands you run from now on must be ran inside the taiko-web directory, so change your working directory.
+### Set up database
 
 ```bash
-cd /srv/taiko-web
+sudo service mongod start
+mongo taiko --eval 'db.users.findOneAndUpdate({username:"admin"},{$set:{user_level:100}})'
+mongoimport --db taiko --collection categories --file /taiko-web/tools/categories.json --jsonArray
 ```
 
-Run the following commands to install requirements and set default configurations.
-
-```bash
-pip3 install -r requirements.txt
-tools/get_version.sh
-cp tools/hooks/* .git/hooks/
-cp config.example.py config.py
-```
-
-Edit config.py in a text editor to configure taiko-web for your system.
-
-### nginx setup
-
-Let's set up nginx now. Copy the example virtual host file `tools/nginx.conf` to `/etc/nginx/conf.d/taiko-web.conf`, changing the `server_name` and `root` statements as required.
-
-```bash
-su
-cp /srv/taiko-web/tools/nginx.conf /etc/nginx/conf.d/taiko-web.conf
-```
-
-Next, open `/etc/nginx/nginx.conf` and comment out the line which displays the default nginx page.
-
-```conf
-include /etc/nginx/sites-enabled/*;
-```
-
-becomes
-
-```conf
-#include /etc/nginx/sites-enabled/*;
-```
-
-Then, open `/etc/nginx/mime.types` and add this line near the bottom:
-
-```
-application/wasm wasm;
-```
-
-Once you've configured the files, reload nginx (as root). Assuming everything was configured correctly, you shouldn't get any errors.
-
-```bash
-nginx -s reload
-```
-
-If you try to access your simulator now, you should get a 502 error. That's because we haven't started the app server yet, so let's do that!
-
-### taiko-web setup
-
-We'll first create virtual environments for Python and install the required modules.
-
-```bash
-virtualenv -p python3 /srv/taiko-web/.venv
-source /srv/taiko-web/.venv/bin/activate
-pip install -r /srv/taiko-web/requirements.txt
-deactivate
-```
-
-It is recommended that you use a process manager such as [Supervisor](http://supervisord.org/) to keep taiko-web running at all times.
-
-Copy the example configuration file from `tools/supervisor.conf` to `/etc/supervisor/conf.d/taiko-web.conf`, adjusting it as needed.
-
-```bash
-su
-mkdir -p /var/log/taiko-web
-cp tools/supervisor.conf /etc/supervisor/conf.d/taiko-web.conf
-```
-
-Then, restart Supervisor (as root).
-
-```bash
-su
-service supervisor restart
-```
-
-And you can check the status of supervisor with this command, to see if anything went wrong (also as root).
-
-```bash
-supervisorctl status
-```
-
-We're almost there! taiko-web has been installed and when you start the database you will be able to run it too, but there will be no default songs. Let's fix that!
-
-### Database setup
-
-Create a folder for MongoDB to store files and start it.
-
-```bash
-su
-mkdir -p /data/db
-systemctl enable mongod.service
-service mongod start
-```
-
-At this point, taiko-web is ready to be opened in browser. Navigate to `localhost` in a web browser and register an admin account (this guide assumes username "admin" as an example).
-
-Open the MongoDB shell by running `mongo` and execute the following queries to set up admin permission level:
-
-```
-use taiko
-db.users.findOneAndUpdate({username:"admin"},{$set:{user_level:100}})
-exit
-```
-
-We will also import song genres to the database.
-
-```bash
-mongoimport --db taiko --collection categories --file /srv/taiko-web/tools/categories.json --jsonArray
-```
-
-Type `exit` if you are still root.
-
-### Adding songs
+### Add songs
 
 So we have the song genres, but still no songs. In taiko-web, each song has a folder under `public/songs/` corresponding to its ID in the database. There isn't a songs folder by default, so make one.
 
@@ -209,23 +95,42 @@ As long as you are logged in on taiko-web, you should be able to navigate to `lo
 
 And... that's it! Assuming you did everything correctly, you should now be able to access your simulator and play the song you just added.
 
-### Updating
-
-If you want to update taiko-web from an older version, you will need to pull the changes from git and restart the supervisor.
-
-```bash
-cd /srv/taiko-web
-git pull
-su -c 'supervisorctl restart all'
-```
-
-It is recommended to review pull request notes as sometimes you might need to do some configuring.
-
-## Adding songs
-
 At present, songs must be added to taiko-web manually via the database. A song management page is currently in development.
 
-### About songs in taiko-web
+Check the `Add songs (continued)` section for more details.
+
+### Set up Python virtual environment and run
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip3 install -r requirements.txt
+```
+
+Create the `config.py` file. You can use the default configuration:
+
+```bash
+cp config.example.py config.py
+```
+
+The run the following:
+
+```{bash}
+uwsgi --http :34801 --master --wsgi-file /taiko-web/app.py --callable app &
+python3 server.py &
+```
+
+The servers will run in the background. If you wish to stop them:
+
+- Run `fg`
+
+- Hit `Ctrl + C`
+
+- Run `fg`
+
+- Hit `Ctrl + C`
+
+## Add songs (continued)
 
 taiko-web supports two notechart formats: TJA, and osu!taiko beatmaps (in .osu format). As with official Taiko games, a song can have up to five difficulties (Easy, Normal, Hard, Oni/Extreme, Ura/Inner Oni).
 
