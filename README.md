@@ -23,7 +23,7 @@ docker build -t taiko-web .
 And start a docker container:
 
 ```bash
-docker run --name taiko-web -p 34801:34801 -p 34802:34802 -d --rm taiko-web
+docker run --name taiko-web --rm -p 34801:34801 -p 34802:34802 -d taiko-web
 ```
 
 You can then access taiko-web by visiting `localhost:34801`.

@@ -18,4 +18,3 @@ ENTRYPOINT \
     mongoimport --db taiko --collection categories --file /taiko-web/tools/categories.json --jsonArray && \
     cd /taiko-web && \
     gunicorn -b 127.0.0.1:34801 app:app
-#python3 server.py
