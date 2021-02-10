@@ -35,9 +35,6 @@ $RECYCLE.BIN/
 .Spotlight-V100
 .Trashes
 
-.vscode
-*.pyc
-
 # Directories potentially created on remote AFP share
 .AppleDB
 .AppleDesktop
@@ -51,4 +48,12 @@ version.json
 public/index.html
 config.py
 public/assets/song_skins
+
+# Editor/IDE-related
+.vscode
+
+# Python-related
+*.pyc
 .venv
+__pycache__
+config.py
