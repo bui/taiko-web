@@ -67,16 +67,14 @@ def generate_hash(id, form):
         if url.startswith("http://") or url.startswith("https://"):
             resp = requests.get(url)
             if resp.status_code != 200:
-                raise HashException('Invalid response from %s (status code %s)' % (
-                    resp.url, resp.status_code))
+                raise HashException('Invalid response from %s (status code %s)' % (resp.url, resp.status_code))
             md5.update(resp.content)
         else:
             if url.startswith("/"):
                 url = url[1:]
             path = os.path.normpath(os.path.join("public", url))
             if not os.path.isfile(path):
-                raise HashException("File not found: %s" %
-                                    (os.path.abspath(path)))
+                raise HashException("File not found: %s" % (os.path.abspath(path)))
             with open(path, "rb") as file:
                 md5.update(file.read())
 
@@ -98,7 +96,7 @@ def admin_required(level):
         def wrapper(*args, **kwargs):
             if not session.get('username'):
                 return abort(403)
-
+            
             user = db.users.find_one({'username': session.get('username')})
             if user['user_level'] < level:
                 return abort(403)
@@ -143,19 +141,16 @@ def get_config(credentials=False):
             }
 
     if not config_out.get('songs_baseurl'):
-        config_out['songs_baseurl'] = ''.join(
-            [request.host_url, 'songs']) + '/'
+        config_out['songs_baseurl'] = ''.join([request.host_url, 'songs']) + '/'
     if not config_out.get('assets_baseurl'):
-        config_out['assets_baseurl'] = ''.join(
-            [request.host_url, 'assets']) + '/'
+        config_out['assets_baseurl'] = ''.join([request.host_url, 'assets']) + '/'
 
     config_out['_version'] = get_version()
     return config_out
 
 
 def get_version():
-    version = {'commit': None, 'commit_short': '',
-               'version': None, 'url': config.URL}
+    version = {'commit': None, 'commit_short': '', 'version': None, 'url': config.URL}
     if os.path.isfile('version.json'):
         try:
             ver = json.load(open('version.json', 'r'))
@@ -169,14 +164,10 @@ def get_version():
 
     return version
 
-
 def get_db_don(user):
-    don_body_fill = user['don_body_fill'] if 'don_body_fill' in user else get_default_don(
-        'body_fill')
-    don_face_fill = user['don_face_fill'] if 'don_face_fill' in user else get_default_don(
-        'face_fill')
+    don_body_fill = user['don_body_fill'] if 'don_body_fill' in user else get_default_don('body_fill')
+    don_face_fill = user['don_face_fill'] if 'don_face_fill' in user else get_default_don('face_fill')
     return {'body_fill': don_body_fill, 'face_fill': don_face_fill}
-
 
 def get_default_don(part=None):
     if part == None:
@@ -188,7 +179,6 @@ def get_default_don(part=None):
         return '#5fb7c1'
     elif part == 'face_fill':
         return '#ff5724'
-
 
 def is_hex(input):
     try:
@@ -237,7 +227,7 @@ def route_admin_songs_id(id):
     user = db.users.find_one({'username': session['username']})
 
     return render_template('admin_song_detail.html',
-                           song=song, categories=categories, song_skins=song_skins, makers=makers, admin=user, config=get_config())
+        song=song, categories=categories, song_skins=song_skins, makers=makers, admin=user, config=get_config())
 
 
 @app.route('/admin/songs/new')
@@ -260,10 +250,8 @@ def route_admin_songs_new_post():
     output['title'] = request.form.get('title') or None
     output['subtitle'] = request.form.get('subtitle') or None
     for lang in ['ja', 'en', 'cn', 'tw', 'ko']:
-        output['title_lang'][lang] = request.form.get(
-            'title_%s' % lang) or None
-        output['subtitle_lang'][lang] = request.form.get(
-            'subtitle_%s' % lang) or None
+        output['title_lang'][lang] = request.form.get('title_%s' % lang) or None
+        output['subtitle_lang'][lang] = request.form.get('subtitle_%s' % lang) or None
 
     for course in ['easy', 'normal', 'hard', 'oni', 'ura']:
         if request.form.get('course_%s' % course):
@@ -271,7 +259,7 @@ def route_admin_songs_new_post():
                                          'branch': True if request.form.get('branch_%s' % course) else False}
         else:
             output['courses'][course] = None
-
+    
     output['category_id'] = int(request.form.get('category_id')) or None
     output['type'] = request.form.get('type')
     output['music_type'] = request.form.get('music_type')
@@ -282,10 +270,10 @@ def route_admin_songs_new_post():
     output['maker_id'] = int(request.form.get('maker_id')) or None
     output['lyrics'] = True if request.form.get('lyrics') else False
     output['hash'] = request.form.get('hash')
-
+    
     seq = db.seq.find_one({'name': 'songs'})
     seq_new = seq['value'] + 1 if seq else 1
-
+    
     hash_error = False
     if request.form.get('gen_hash'):
         try:
@@ -293,17 +281,16 @@ def route_admin_songs_new_post():
         except HashException as e:
             hash_error = True
             flash('An error occurred: %s' % str(e), 'error')
-
+    
     output['id'] = seq_new
     output['order'] = seq_new
-
+    
     db.songs.insert_one(output)
     if not hash_error:
         flash('Song created.')
-
-    db.seq.update_one({'name': 'songs'}, {
-                      '$set': {'value': seq_new}}, upsert=True)
-
+    
+    db.seq.update_one({'name': 'songs'}, {'$set': {'value': seq_new}}, upsert=True)
+    
     return redirect('/admin/songs/%s' % str(seq_new))
 
 
@@ -324,10 +311,8 @@ def route_admin_songs_id_post(id):
     output['title'] = request.form.get('title') or None
     output['subtitle'] = request.form.get('subtitle') or None
     for lang in ['ja', 'en', 'cn', 'tw', 'ko']:
-        output['title_lang'][lang] = request.form.get(
-            'title_%s' % lang) or None
-        output['subtitle_lang'][lang] = request.form.get(
-            'subtitle_%s' % lang) or None
+        output['title_lang'][lang] = request.form.get('title_%s' % lang) or None
+        output['subtitle_lang'][lang] = request.form.get('subtitle_%s' % lang) or None
 
     for course in ['easy', 'normal', 'hard', 'oni', 'ura']:
         if request.form.get('course_%s' % course):
@@ -335,7 +320,7 @@ def route_admin_songs_id_post(id):
                                          'branch': True if request.form.get('branch_%s' % course) else False}
         else:
             output['courses'][course] = None
-
+    
     output['category_id'] = int(request.form.get('category_id')) or None
     output['type'] = request.form.get('type')
     output['music_type'] = request.form.get('music_type')
@@ -346,7 +331,7 @@ def route_admin_songs_id_post(id):
     output['maker_id'] = int(request.form.get('maker_id')) or None
     output['lyrics'] = True if request.form.get('lyrics') else False
     output['hash'] = request.form.get('hash')
-
+    
     hash_error = False
     if request.form.get('gen_hash'):
         try:
@@ -354,11 +339,11 @@ def route_admin_songs_id_post(id):
         except HashException as e:
             hash_error = True
             flash('An error occurred: %s' % str(e), 'error')
-
+    
     db.songs.update_one({'id': id}, {'$set': output})
     if not hash_error:
         flash('Changes saved.')
-
+    
     return redirect('/admin/songs/%s' % id)
 
 
@@ -388,10 +373,10 @@ def route_admin_users_post():
     admin_name = session.get('username')
     admin = db.users.find_one({'username': admin_name})
     max_level = admin['user_level'] - 1
-
+    
     username = request.form.get('username')
     level = int(request.form.get('level')) or 0
-
+    
     user = db.users.find_one({'username': username})
     if not user:
         flash('Error: User was not found.')
@@ -407,7 +392,7 @@ def route_admin_users_post():
             output = {'user_level': level}
             db.users.update_one({'username': username}, {'$set': output})
             flash('User updated.')
-
+    
     return render_template('admin_users.html', config=get_config(), max_level=max_level, username=username, level=level)
 
 
@@ -435,42 +420,36 @@ def route_api_preview():
 @app.route('/api/songs')
 @app.cache.cached(timeout=15)
 def route_api_songs():
-    songs = list(db.songs.find({'enabled': True}, {
-                 '_id': False, 'enabled': False}))
+    songs = list(db.songs.find({'enabled': True}, {'_id': False, 'enabled': False}))
     for song in songs:
         if song['maker_id']:
             if song['maker_id'] == 0:
                 song['maker'] = 0
             else:
-                song['maker'] = db.makers.find_one(
-                    {'id': song['maker_id']}, {'_id': False})
+                song['maker'] = db.makers.find_one({'id': song['maker_id']}, {'_id': False})
         else:
             song['maker'] = None
         del song['maker_id']
 
         if song['category_id']:
-            song['category'] = db.categories.find_one(
-                {'id': song['category_id']})['title']
+            song['category'] = db.categories.find_one({'id': song['category_id']})['title']
         else:
             song['category'] = None
         #del song['category_id']
 
         if song['skin_id']:
-            song['song_skin'] = db.song_skins.find_one(
-                {'id': song['skin_id']}, {'_id': False, 'id': False})
+            song['song_skin'] = db.song_skins.find_one({'id': song['skin_id']}, {'_id': False, 'id': False})
         else:
             song['song_skin'] = None
         del song['skin_id']
 
     return jsonify(songs)
 
-
 @app.route('/api/categories')
 @app.cache.cached(timeout=15)
 def route_api_categories():
-    categories = list(db.categories.find({}, {'_id': False}))
+    categories = list(db.categories.find({},{'_id': False}))
     return jsonify(categories)
-
 
 @app.route('/api/config')
 @app.cache.cached(timeout=15)
@@ -502,7 +481,7 @@ def route_api_register():
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password, salt)
     don = get_default_don()
-
+    
     session_id = os.urandom(24).hex()
     db.users.insert_one({
         'username': username,
@@ -537,9 +516,9 @@ def route_api_login():
     password = data.get('password', '').encode('utf-8')
     if not bcrypt.checkpw(password, result['password']):
         return api_error('invalid_username_password')
-
+    
     don = get_db_don(result)
-
+    
     session['session_id'] = result['session_id']
     session['username'] = result['username']
     session.permanent = True if data.get('remember') else False
@@ -566,7 +545,7 @@ def route_api_account_display_name():
         display_name = session.get('username')
     elif len(display_name) > 25:
         return api_error('invalid_display_name')
-
+    
     db.users.update_one({'username': session.get('username')}, {
         '$set': {'display_name': display_name}
     })
@@ -580,22 +559,22 @@ def route_api_account_don():
     data = request.get_json()
     if not schema.validate(data, schema.update_don):
         return abort(400)
-
+    
     don_body_fill = data.get('body_fill', '').strip()
     don_face_fill = data.get('face_fill', '').strip()
     if len(don_body_fill) != 7 or\
-            not don_body_fill.startswith("#")\
-            or not is_hex(don_body_fill[1:])\
-            or len(don_face_fill) != 7\
-            or not don_face_fill.startswith("#")\
-            or not is_hex(don_face_fill[1:]):
+        not don_body_fill.startswith("#")\
+        or not is_hex(don_body_fill[1:])\
+        or len(don_face_fill) != 7\
+        or not don_face_fill.startswith("#")\
+        or not is_hex(don_face_fill[1:]):
         return api_error('invalid_don')
-
+    
     db.users.update_one({'username': session.get('username')}, {'$set': {
         'don_body_fill': don_body_fill,
         'don_face_fill': don_face_fill,
     }})
-
+    
     return jsonify({'status': 'ok', 'don': {'body_fill': don_body_fill, 'face_fill': don_face_fill}})
 
 
@@ -610,11 +589,11 @@ def route_api_account_password():
     current_password = data.get('current_password', '').encode('utf-8')
     if not bcrypt.checkpw(current_password, user['password']):
         return api_error('current_password_invalid')
-
+    
     new_password = data.get('new_password', '').encode('utf-8')
     if not 6 <= len(new_password) <= 5000:
         return api_error('invalid_new_password')
-
+    
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(new_password, salt)
     session_id = os.urandom(24).hex()
@@ -660,11 +639,11 @@ def route_api_scores_save():
     scores = data.get('scores', [])
     for score in scores:
         db.scores.update_one({'username': username, 'hash': score['hash']},
-                             {'$set': {
-                                 'username': username,
-                                 'hash': score['hash'],
-                                 'score': score['score']
-                             }}, upsert=True)
+        {'$set': {
+            'username': username,
+            'hash': score['hash'],
+            'score': score['score']
+        }}, upsert=True)
 
     return jsonify({'status': 'ok'})
 
@@ -688,12 +667,10 @@ def route_api_scores_get():
 
 @app.route('/privacy')
 def route_api_privacy():
-    last_modified = time.strftime('%d %B %Y', time.gmtime(
-        os.path.getmtime('templates/privacy.txt')))
+    last_modified = time.strftime('%d %B %Y', time.gmtime(os.path.getmtime('templates/privacy.txt')))
     integration = config.GOOGLE_CREDENTIALS['gdrive_enabled']
-
-    response = make_response(render_template(
-        'privacy.txt', last_modified=last_modified, config=get_config(), integration=integration))
+    
+    response = make_response(render_template('privacy.txt', last_modified=last_modified, config=get_config(), integration=integration))
     response.headers['Content-type'] = 'text/plain; charset=utf-8'
     return response
 
