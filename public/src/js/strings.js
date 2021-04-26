@@ -1371,7 +1371,7 @@ var translations = {
 		noSongs: {
 			ja: "選択されたフォルダに太鼓チャートファイルが見つかりませんでした。",
 			en: "No Taiko chart files have been found in the provided folder.",
-			en: "Aucun fichier Taiko Chart trouvé dans le dossier sélectionné."
+			fr: "Aucun fichier Taiko Chart trouvé dans le dossier sélectionné."
 		}
 	},
 	gpicker: {
