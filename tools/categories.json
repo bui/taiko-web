@@ -6,7 +6,8 @@
 		"en": "Pop",
 		"cn": "流行音乐",
 		"tw": "流行音樂",
-		"ko": "POP"
+		"ko": "POP",
+		"fr": "Pop"
 	},
 	"song_skin": {
 		"sort": 1,
@@ -25,7 +26,8 @@
 		"en": "Anime",
 		"cn": "卡通动画音乐",
 		"tw": "卡通動畫音樂",
-		"ko": "애니메이션"
+		"ko": "애니메이션",
+		"fr": "Anime"
 	},
 	"song_skin": {
 		"sort": 2,
@@ -65,7 +67,8 @@
 		"en": "Variety",
 		"cn": "综合音乐",
 		"tw": "綜合音樂",
-		"ko": "버라이어티"
+		"ko": "버라이어티",
+		"fr": "Variété"
 	},
 	"song_skin": {
 		"sort": 4,
@@ -91,7 +94,8 @@
 		"en": "Classical",
 		"cn": "古典音乐",
 		"tw": "古典音樂",
-		"ko": "클래식"
+		"ko": "클래식",
+		"fr": "Classique"
 	},
 	"song_skin": {
 		"sort": 5,
@@ -113,7 +117,8 @@
 		"en": "Game Music",
 		"cn": "游戏音乐",
 		"tw": "遊戲音樂",
-		"ko": "게임"
+		"ko": "게임",
+		"fr": "Musique de jeux"
 	},
 	"song_skin": {
 		"sort": 6,
@@ -132,7 +137,8 @@
 		"en": "NAMCO Original",
 		"cn": "NAMCO原创音乐",
 		"tw": "NAMCO原創音樂",
-		"ko": "남코 오리지널"
+		"ko": "남코 오리지널",
+		"fr": "NAMCO Original"
 	},
 	"song_skin": {
 		"sort": 7,

@@ -245,7 +245,7 @@ def route_admin_songs_new_post():
     output['enabled'] = True if request.form.get('enabled') else False
     output['title'] = request.form.get('title') or None
     output['subtitle'] = request.form.get('subtitle') or None
-    for lang in ['ja', 'en', 'cn', 'tw', 'ko']:
+    for lang in ['ja', 'en', 'cn', 'tw', 'ko', 'fr']:
         output['title_lang'][lang] = request.form.get('title_%s' % lang) or None
         output['subtitle_lang'][lang] = request.form.get('subtitle_%s' % lang) or None
 
@@ -306,7 +306,7 @@ def route_admin_songs_id_post(id):
 
     output['title'] = request.form.get('title') or None
     output['subtitle'] = request.form.get('subtitle') or None
-    for lang in ['ja', 'en', 'cn', 'tw', 'ko']:
+    for lang in ['ja', 'en', 'cn', 'tw', 'ko', 'fr']:
         output['title_lang'][lang] = request.form.get('title_%s' % lang) or None
         output['subtitle_lang'][lang] = request.form.get('subtitle_%s' % lang) or None
 

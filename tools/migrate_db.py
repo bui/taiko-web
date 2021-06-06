@@ -25,9 +25,9 @@ def migrate_songs():
         song = {
             'id': row['id'],
             'title': row['title'],
-            'title_lang': {'ja': row['title'], 'en': None, 'cn': None, 'tw': None, 'ko': None},
+            'title_lang': {'ja': row['title'], 'en': None, 'cn': None, 'tw': None, 'ko': None, 'fr': None},
             'subtitle': row['subtitle'],
-            'subtitle_lang': {'ja': row['subtitle'], 'en': None, 'cn': None, 'tw': None, 'ko': None},
+            'subtitle_lang': {'ja': row['subtitle'], 'en': None, 'cn': None, 'tw': None, 'ko': None, 'fr': None},
             'courses': {'easy': None, 'normal': None, 'hard': None, 'oni': None, 'ura': None},
             'enabled': True if row['enabled'] else False,
             'category_id': row['category'],
@@ -54,7 +54,7 @@ def migrate_songs():
             langs = row['title_lang'].splitlines()
             for lang in langs:
                 spl = lang.split(' ', 1)
-                if spl[0] in ['ja', 'en', 'cn', 'tw', 'ko']:
+                if spl[0] in ['ja', 'en', 'cn', 'tw', 'ko', 'fr']:
                     song['title_lang'][spl[0]] = spl[1]
                 else:
                     song['title_lang']['en'] = lang
@@ -63,7 +63,7 @@ def migrate_songs():
             langs = row['subtitle_lang'].splitlines()
             for lang in langs:
                 spl = lang.split(' ', 1)
-                if spl[0] in ['ja', 'en', 'cn', 'tw', 'ko']:
+                if spl[0] in ['ja', 'en', 'cn', 'tw', 'ko', 'fr']:
                     song['subtitle_lang'][spl[0]] = spl[1]
                 else:
                     song['subtitle_lang']['en'] = lang
