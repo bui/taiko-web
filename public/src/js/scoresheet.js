@@ -679,7 +679,7 @@ class Scoresheet{
 				}
 				var crownType = null
 				if(this.rules[p].clearReached(results.gauge)){
-					crownType = results.bad === "0" ? "gold" : "silver"
+					crownType = results.bad === "0" ? (results.ok === "0" ? "rainbow" : "gold") : "silver"
 				}
 				if(crownType !== null){
 					noCrownResultWait = 0;
@@ -706,7 +706,7 @@ class Scoresheet{
 						}
 						if(this.state.screen === "fadeIn" && elapsed >= 1200 && !this.state["fullcomboPlayed" + p]){
 							this.state["fullcomboPlayed" + p] = true
-							if(crownType === "gold"){
+							if(crownType === "gold" || crownType === "rainbow"){ // TODO: sound effect of donder full combo
 								this.playSound("v_results_fullcombo" + (p === 1 ? "2" : ""), p)
 							}
 						}
@@ -927,10 +927,10 @@ class Scoresheet{
 			var clearReached = this.controller.game.rules.clearReached(this.resultsObj.gauge)
 			var crown = ""
 			if(clearReached){
-				crown = this.resultsObj.bad === 0 ? "gold" : "silver"
+				crown = this.resultsObj.bad === 0 ? (this.resultsObj.ok === 0 ? "rainbow" : "gold") : "silver"
 			}
 			if(!oldScore || oldScore.points <= this.resultsObj.points){
-				if(oldScore && (oldScore.crown === "gold" || oldScore.crown === "silver" && !crown)){
+				if(oldScore && (oldScore.crown === "rainbow" || oldScore.crown === "gold" && (crown === "silver" || !crown) || oldScore.crown === "silver" && !crown)){
 					crown = oldScore.crown
 				}
 				this.resultsObj.crown = crown
@@ -940,7 +940,7 @@ class Scoresheet{
 				scoreStorage.add(hash, difficulty, this.resultsObj, true, title).catch(() => {
 					this.showWarning = {name: "scoreSaveFailed"}
 				})
-			}else if(oldScore && (crown === "gold" && oldScore.crown !== "gold" || crown && !oldScore.crown)){
+			}else if(oldScore && ((crown === "rainbow" && oldScore.crown !== "rainbow") || crown === "gold" && (oldScore.crown === "silver"  ||!oldScore.crown) || crown && !oldScore.crown)){
 				oldScore.crown = crown
 				scoreStorage.add(hash, difficulty, oldScore, true, title).catch(() => {
 					this.showWarning = {name: "scoreSaveFailed"}

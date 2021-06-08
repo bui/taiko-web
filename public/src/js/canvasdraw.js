@@ -1348,7 +1348,15 @@
 		
 		if(config.type){
 			var grd = ctx.createLinearGradient(0, 0, 94, 0)
-			if(config.type === "gold"){
+			if(config.type === "rainbow"){ // TODO
+				grd.addColorStop(0,"#0000ff")
+				grd.addColorStop(0.15,"#00ffff")
+				grd.addColorStop(0.35,"#00ff88")
+				grd.addColorStop(0.5,"#ffffff")
+				grd.addColorStop(0.65,"#ffff00")
+				grd.addColorStop(0.85,"#ff8800")
+				grd.addColorStop(1,"#ff00ff")
+			}else if(config.type === "gold"){
 				grd.addColorStop(0, "#ffffc5")
 				grd.addColorStop(0.23, "#ffff44")
 				grd.addColorStop(0.53, "#efbd12")

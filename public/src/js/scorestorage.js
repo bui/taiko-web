@@ -7,7 +7,7 @@ class ScoreStorage{
 		this.songTitles = {}
 		this.difficulty = ["oni", "ura", "hard", "normal", "easy"]
 		this.scoreKeys = ["points", "good", "ok", "bad", "maxCombo", "drumroll"]
-		this.crownValue = ["", "silver", "gold"]
+		this.crownValue = ["", "silver", "gold", "rainbow"]
 	}
 	load(strings, loadFailed){
 		var scores = {}

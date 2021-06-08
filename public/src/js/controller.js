@@ -205,7 +205,10 @@ class Controller{
 		var score = this.getGlobalScore()
 		var vp
 		if(this.game.rules.clearReached(score.gauge)){
-			if(score.bad === 0){
+			if(score.ok === 0 && score.bad === 0){ // TODO: donder fullcombo
+				vp = "fullcombo"
+				this.playSound("v_fullcombo", 1.350)
+			}else if(score.bad === 0){
 				vp = "fullcombo"
 				this.playSound("v_fullcombo", 1.350)
 			}else{
