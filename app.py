@@ -689,4 +689,4 @@ def make_preview(song_id, song_type, song_ext, preview):
 
 
 if __name__ == '__main__':
-    app.run(port=34801)
+    app.run(threaded=True, port=34801)
