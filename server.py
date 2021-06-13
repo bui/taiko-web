@@ -372,11 +372,20 @@ async def connection(ws, path):
 		elif user["action"] == "invite" and user["session"] in server_status["invites"]:
 			del server_status["invites"][user["session"]]
 
-port = int(sys.argv[1]) if len(sys.argv) > 1 else 34802
-print('Starting server on port %d' % port)
+if len(sys.argv) == 1:
+    host = "localhost"
+    port = 34802
+else:
+    try:
+        host, port = sys.argv[1].split(":")
+    except ValueError:
+        host = "localhost"
+        port = sys.argv[1]
+    port = int(port)
+print('Starting server on %s:%d' % (host, port))
 loop = asyncio.get_event_loop()
 tasks = asyncio.gather(
-	websockets.serve(connection, "localhost", port)
+    websockets.serve(connection, host, port)
 )
 try:
 	loop.run_until_complete(tasks)
@@ -396,4 +405,3 @@ finally:
 	if hasattr(loop, "shutdown_asyncgens"):
 		loop.run_until_complete(loop.shutdown_asyncgens())
 	loop.close()
-

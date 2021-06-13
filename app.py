@@ -20,7 +20,11 @@ from ffmpy import FFmpeg
 from pymongo import MongoClient
 from redis import Redis
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_url_path="/",
+    static_folder="public"
+)
 client = MongoClient(host=config.MONGO['host'])
 
 app.secret_key = config.SECRET_KEY
