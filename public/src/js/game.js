@@ -240,7 +240,7 @@ class Game{
 		this.sectionNotes.push(0)
 		this.controller.displayScore(0, true)
 		this.updateCombo(0)
-		this.updateGlobalScore(0, 1)
+		this.updateGlobalScore(0, false, false, false);
 		if(this.controller.multiplayer === 1){
 			p2.send("note", {
 				score: -1
@@ -370,7 +370,7 @@ class Game{
 				this.controller.displayScore(score, true, false)
 			}
 			this.updateCombo(score)
-			this.updateGlobalScore(score, typeDai && keyDai ? 2 : 1, circle.gogoTime)
+			this.updateGlobalScore(score, typeDai, keyDai, circle.gogoTime);
 			this.updateCurrentCircle()
 			if(circle.section){
 				this.resetSection()
@@ -405,9 +405,10 @@ class Game{
 		}
 		return true
 	}
-	checkBalloon(circle){
+	checkBalloon(circle) {
+		var score;
 		if(circle.timesHit >= circle.requiredHits - 1){
-			var score = 5000
+			score = this.songData.scoremode === 3 ? 100 : 5000;
 			this.updateCurrentCircle()
 			circle.hit()
 			circle.played(score)
@@ -417,7 +418,7 @@ class Game{
 				})
 			}
 		}else{
-			var score = 300
+			score = this.songData.scoremode === 3 ? 100 : 300;
 			circle.hit()
 		}
 		this.globalScore.drumroll++
@@ -453,7 +454,7 @@ class Game{
 		this.view.drumroll.push(circleAnim)
 		this.globalScore.drumroll++
 		this.sectionDrumroll++
-		this.globalScore.points += score * (dai ? 2 : 1)
+		this.globalScore.points += score * ((dai && this.songData.scoremode !== 3) ? 2 : 1)
 		this.view.setDarkBg(false)
 	}
 	getLastCircle(circles){
@@ -638,7 +639,7 @@ class Game{
 	getGlobalScore(){
 		return this.globalScore
 	}
-	updateGlobalScore(score, multiplier, gogoTime){
+	updateGlobalScore(score, typeDai, keyDai, gogoTime){
 		// Circle score
 		switch(score){
 			case 450:
@@ -683,12 +684,21 @@ class Game{
 				diff_mul = 1;
 			}
 			score += this.songData.scorediff * diff_mul;
-		} else { 
+		} else if (this.songData.scoremode == 1) { 
 			score += Math.max(0, Math.floor((Math.min(this.combo, 100) - 1) / 10) * (this.songData.scoremode ? this.songData.scorediff : 100));
 		}
-		
-		if(gogoTime){
-			multiplier *= 1.2
+		let multiplier = 1;
+		if (this.songData.scoremode === 3) {
+			if (typeDai && !keyDai){
+				multiplier = 0.5;
+			}
+		} else { 
+			if (typeDai && keyDai){
+				multiplier = 2;
+			}
+			if(gogoTime){
+				multiplier *= 1.2;
+			}
 		}
 		this.globalScore.points += Math.floor(score * multiplier / 10) * 10
 	}

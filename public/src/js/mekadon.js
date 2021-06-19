@@ -45,13 +45,14 @@ class Mekadon{
 			this.controller.displayScore(0, true)
 			this.game.updateCurrentCircle()
 			this.game.updateCombo(0)
-			this.game.updateGlobalScore(0, 1, circle.gogoTime)
+			this.game.updateGlobalScore(0, false, false, circle.gogoTime)
 			this.game.sectionNotes.push(0)
 			return true
 		}
 	}
 	playNow(circle, score, dai, reverse){
 		var type = circle.type
+		var typeDai = type === "daiDon" || type === "daiKa";
 		var keyDai = false
 		var playDai = !dai || dai === 2
 		var drumrollNotes = type === "balloon" || type === "drumroll" || type === "daiDrumroll"
@@ -96,7 +97,7 @@ class Mekadon{
 		}else{
 			this.controller.displayScore(score, false, keyDai)
 			this.game.updateCombo(score)
-			this.game.updateGlobalScore(score, keyDai ? 2 : 1, circle.gogoTime)
+			this.game.updateGlobalScore(score, typeDai, keyDai, circle.gogoTime)
 			this.game.updateCurrentCircle()
 			circle.played(score, keyDai)
 			if(circle.section){
